@@ -1,0 +1,85 @@
+server:
+  port: 8090
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: iam-service
+            client-secret: 7FTdbO8lU0pSFqmKqxLOPGFZ71hFD2pR
+            scope: openid
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://localhost:8090/login/oauth2/code/keycloak"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/contentnexus
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/contentnexus
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: user-sync-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/loginTrackDB
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    dialect: org.hibernate.dialect.PostgreSQL95Dialect
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+  liquibase:
+    enabled: false
+
+  # Keycloak configuration (for OAuth and authentication)
+keycloak:
+  auth-server-url: http://localhost:8080
+  realm: contentnexus
+  client-id: iam-service
+  client-secret: 7FTdbO8lU0pSFqmKqxLOPGFZ71hFD2pR
+  public-client: true
+  bearer-only: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Exposes all Actuator endpoints
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "IAM Service"
+    description: "User Authentication Service"
+    version: "1.0.0"
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
